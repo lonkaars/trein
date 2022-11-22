@@ -1,1 +1,4 @@
-key
+storingen.key
+autoplanner.json
+venv/
+__pycache__/

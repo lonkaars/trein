@@ -6,22 +6,15 @@ import urllib.error
 import json
 import dateutil.parser
 from icalendar import Calendar, Event
+from shared import *
 
 cal = Calendar()
-cal.add('prodid', 'trein')
-cal.add('version', '2.0')
-
-def read_file(filename):
-  f = open(filename, "r")
-  r = str(f.read())
-  f.close()
-  return r
 
 def fake_disruptions():
   return read_file("./api_response.json")
 
 def real_disruptions():
-  key = read_file("./key").strip()
+  key = read_file("./storingen.key").strip()
   headers = { 'Ocp-Apim-Subscription-Key': key }
   params = urllib.parse.urlencode({ 'isActive': 'true' })
   conn = http.client.HTTPSConnection('gateway.apiportal.ns.nl')
@@ -48,8 +41,11 @@ def disruption2ical(disruption):
   cal.add_component(ev)
 
 def main():
+  cal.add('prodid', 'trein')
+  cal.add('version', '2.0')
+
   disruptions = json.loads(get_disruptions())
-  relevant_stations = read_file("./config").strip().split("\n")
+  relevant_stations = read_file("./storingen.cfg").strip().split("\n")
 
   for disruption in disruptions:
     relevant = False
