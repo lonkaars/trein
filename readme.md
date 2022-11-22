@@ -16,7 +16,7 @@ location /ical/trein.ics {
   autoindex on;
   fastcgi_pass unix:/var/run/fcgiwrap.socket;
   include /etc/nginx/fastcgi_params;
-  fastcgi_param SCRIPT_FILENAME /var/trein/trein.py;
+  fastcgi_param SCRIPT_FILENAME /var/trein/fcgi;
 }
 ```
 

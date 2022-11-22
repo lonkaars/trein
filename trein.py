@@ -61,7 +61,7 @@ def main():
           relevant = True # only relevant if consequence contains current and next station
     if relevant: disruption2ical(disruption)
 
-  print(cal.to_ical())
+  print(str(cal.to_ical(), 'utf-8'))
 
 if __name__ == "__main__":
   main()
