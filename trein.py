@@ -37,7 +37,7 @@ def get_disruptions():
 def disruption2ical(disruption):
   ev = Event()
   ev['uid'] = disruption['id']
-  ev.add('name', f"{disruption['timespans'][0]['cause']['label']} {disruption['title']}")
+  ev.add('summary', f"{disruption['timespans'][0]['cause']['label']} {disruption['title']}")
   description = disruption['expectedDuration']['description'] + "\n\n"
   for timespan in disruption['timespans']:
     description += timespan['situation']['label'] + "\n\n"
