@@ -34,4 +34,16 @@ location /ical/trein.ics {
 
 ### autoplanner
 
-WIP
+deze gebruikt de openbare reisplanner om reisadvies op te vragen. omdat deze
+methode van de NS api gebruiken niet officieel ondersteund is kan deze mogelijk
+ooit stoppen met werken.
+
+dit script verwacht een bestand `autoplanner.json`, die gebaseerd is op
+`autoplanner.def.json`, en leest een icalendar agenda vanaf stdin.
+
+voorbeeldaanroep:
+
+```bash
+./autoplanner.py < rooster.ics
+```
+

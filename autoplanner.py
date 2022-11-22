@@ -55,7 +55,15 @@ def get_trip(date):
   return real_trip(date)
 
 def leg2desc(leg):
-  return "desc"
+  desc = ""
+  duration = leg['plannedDurationInMinutes']
+  desc += f"Totale ritduur is {duration} {'minuut' if duration == 1 else 'minuten'}\n\n"
+
+  desc += "Tussenstops:\n"
+  for stop in leg['stops']:
+    desc += f" - {stop['name']}\n"
+  desc += "\n"
+  return desc
 
 def trip2ical(trip):
   actual_trip = next(t for t in trip['trips'] if t['status'] != 'CANCELLED')
