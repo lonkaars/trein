@@ -40,7 +40,7 @@ def real_trip(date):
   }
   param_dict = {
     'searchForArrival': True,
-    'dateTime': date,
+    'dateTime': date.isoformat(),
   }
   param_dict.update(CFG)
   params = urllib.parse.urlencode(param_dict)
@@ -65,8 +65,11 @@ def leg2desc(leg):
   desc += "\n"
   return desc
 
-def trip2ical(trip):
-  actual_trip = next(t for t in trip['trips'] if t['status'] != 'CANCELLED')
+def trip2ical(trip, real_date):
+  trips = trip['trips']
+  trips = [t for t in trips if t['status'] != 'CANCELLED']
+  trips = [t for t in trips if dateutil.parser.parse(t['legs'][-1]['destination']['plannedDateTime']).timestamp() > real_date.timestamp()]
+  actual_trip = next(reversed(trips))
   if actual_trip == None: return
 
   for leg in actual_trip['legs']:
@@ -98,9 +101,8 @@ def main():
   times = [datetime.fromtimestamp(x[0] * DAY + x[1]) for x in times] # convert back to datetime
 
   for time in times:
-    time_s = time.isoformat()
-    trip = get_trip(time_s)
-    trip2ical(json.loads(trip))
+    trip = get_trip(time)
+    trip2ical(json.loads(trip), time)
 
   print(str(cal.to_ical(), 'utf-8'))
 
