@@ -30,10 +30,7 @@ def read_file(filename):
   f.close()
   return r
 
-def fake_trip(date):
-  return read_file("./api_response.json")
-
-def real_trip(date):
+def get_trip(date):
   headers = {
     'Ocp-Apim-Subscription-Key': KEY,
     'X-Request-Id': str(uuid4()),
@@ -50,9 +47,6 @@ def real_trip(date):
   data = response.read()
   conn.close()
   return data
-
-def get_trip(date):
-  return real_trip(date)
 
 def leg2desc(leg):
   desc = ""

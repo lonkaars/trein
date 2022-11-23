@@ -10,10 +10,7 @@ from shared import *
 
 cal = Calendar()
 
-def fake_disruptions():
-  return read_file("./api_response.json")
-
-def real_disruptions():
+def get_disruptions():
   key = read_file("./storingen.key").strip()
   headers = { 'Ocp-Apim-Subscription-Key': key }
   params = urllib.parse.urlencode({ 'isActive': 'true' })
@@ -23,9 +20,6 @@ def real_disruptions():
   data = response.read()
   conn.close()
   return data
-
-def get_disruptions():
-  return real_disruptions()
 
 def disruption2ical(disruption):
   ev = Event()
