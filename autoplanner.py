@@ -12,9 +12,15 @@ from shared import *
 import sys
 from datetime import datetime
 
-DAY = 24 * 60 * 60
+SECOND = 1
+MINUTE = 60 * SECOND
+HOUR = 60 * MINUTE
+DAY = 24 * HOUR
+
 # don't calculate trip for events further than a week in the future
-FUTURE_MAX = DAY * 7
+FUTURE_MAX = 7 * DAY
+# allow trips to end two minutes late (lazy student mode)
+LATE_MAX = 2 * MINUTE
 
 cal = Calendar()
 KEY = ""
@@ -62,9 +68,9 @@ def leg2desc(leg):
 def trip2ical(trip, real_date):
   trips = trip['trips']
   trips = [t for t in trips if t['status'] != 'CANCELLED']
-  trips = [t for t in trips if dateutil.parser.parse(t['legs'][-1]['destination']['plannedDateTime']).timestamp() > real_date.timestamp()]
+  trips = [t for t in trips if dateutil.parser.parse(t['legs'][-1]['destination']['plannedDateTime']).timestamp() < (real_date.timestamp() + LATE_MAX)]
   actual_trip = next(reversed(trips))
-  if actual_trip == None: return
+  if actual_trip == None: return # no trip possible
 
   for leg in actual_trip['legs']:
     if leg['travelType'] == 'WALK': continue
