@@ -2,3 +2,4 @@ storingen.key
 autoplanner.json
 venv/
 __pycache__/
+*-api-response.json

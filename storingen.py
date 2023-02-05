@@ -19,6 +19,9 @@ def get_disruptions():
   response = conn.getresponse()
   data = response.read()
   conn.close()
+  f = open("./storingen-api-response.json", "w+")
+  f.write(str(data, "utf-8"))
+  f.close()
   return data
 
 def disruption2ical(disruption):
@@ -43,6 +46,7 @@ def main():
 
   for disruption in disruptions:
     relevant = False
+    if 'publicationSections' not in disruption: continue
     for section in disruption['publicationSections']:
       consequence_stations = list(map(lambda x: x['name'], section['consequence']['section']['stations']))
       for i in range(len(relevant_stations)):

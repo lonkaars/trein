@@ -48,10 +48,13 @@ def get_trip(date):
   param_dict.update(CFG)
   params = urllib.parse.urlencode(param_dict)
   conn = http.client.HTTPSConnection('gateway.apiportal.ns.nl')
-  conn.request("GET", f"/rio-mlab-proxy-api/reisinfo/api/v3/trips?{params}", "", headers)
+  conn.request("GET", f"/reisinformatie-api/api/v3/trips?{params}", "", headers)
   response = conn.getresponse()
   data = response.read()
   conn.close()
+  f = open("./autoplanner-api-response.json", "w+")
+  f.write(str(data, "utf-8"))
+  f.close()
   return data
 
 def leg2desc(leg):
