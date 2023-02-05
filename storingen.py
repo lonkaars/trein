@@ -19,9 +19,7 @@ def get_disruptions():
   response = conn.getresponse()
   data = response.read()
   conn.close()
-  f = open("./storingen-api-response.json", "w+")
-  f.write(str(data, "utf-8"))
-  f.close()
+  debug_output("storingen", data)
   return data
 
 def disruption2ical(disruption):

@@ -1,6 +1,7 @@
 #!/bin/python3
 import urllib.request
 import re
+import os
 from uuid import uuid4
 from bs4 import BeautifulSoup
 
@@ -15,3 +16,9 @@ def read_file(filename):
   r = str(f.read())
   f.close()
   return r
+
+def debug_output(name, data):
+  if not os.path.exists("./debug"): return
+  f = open(f"./{name}-api-response.json", "w+")
+  f.write(str(data, "utf-8"))
+  f.close()
