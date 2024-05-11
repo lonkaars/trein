@@ -11,6 +11,7 @@ from icalendar import Calendar, Event
 from shared import *
 import sys
 from datetime import datetime
+import pytz
 
 SECOND = 1
 MINUTE = 60 * SECOND
@@ -25,10 +26,7 @@ LATE_MAX = 2 * MINUTE
 cal = Calendar()
 KEY = ""
 CFG = {}
-
-def get_events():
-  c = Calendar.from_ical(sys.stdin.read())
-  return list(c.walk('vevent'))
+tz_name = None
 
 def read_file(filename):
   f = open(filename, "r")
@@ -37,6 +35,11 @@ def read_file(filename):
   return r
 
 def get_trip(date):
+  # data = ""
+  # with open("./res.json", "r") as gert:
+  #   data = gert.read()
+  #   gert.close()
+  # return data
   headers = {
     'Ocp-Apim-Subscription-Key': KEY,
     'X-Request-Id': str(uuid4()),
@@ -67,6 +70,7 @@ def leg2desc(leg):
   return desc
 
 def trip2ical(trip, real_date):
+  global tz_name
   trips = trip['trips']
   trips = [t for t in trips if t['status'] != 'CANCELLED']
   trips = [t for t in trips if dateutil.parser.parse(t['legs'][-1]['destination']['plannedDateTime']).timestamp() < (real_date.timestamp() + LATE_MAX)]
@@ -79,11 +83,25 @@ def trip2ical(trip, real_date):
     ev = Event()
     ev.add('summary', f"{leg['name']} -> {leg['direction']}")
     ev.add('description', leg2desc(leg))
-    ev.add('dtstart', dateutil.parser.parse(leg['origin']['plannedDateTime']))
-    ev.add('dtend', dateutil.parser.parse(leg['destination']['plannedDateTime']))
+
+    ev_start = dateutil.parser.parse(leg['origin']['plannedDateTime'])
+    ev_end = dateutil.parser.parse(leg['destination']['plannedDateTime'])
+
+    # this is a stupid hack
+    ev_start.tzinfo.tzname = lambda _: tz_name
+    ev_end.tzinfo.tzname = lambda _: tz_name
+
+    ev.add('dtstart', ev_start)
+    ev.add('dtend', ev_end)
     cal.add_component(ev)
 
 def main():
+  global tz_name
+  input_cal = Calendar.from_ical(sys.stdin.read())
+  tz_name = input_cal.get('x-wr-timezone')
+  tz = pytz.timezone(tz_name)
+  events = list(input_cal.walk('vevent'))
+
   cal.add('prodid', 'trein')
   cal.add('version', '2.0')
 
@@ -95,11 +113,13 @@ def main():
 
   # this is garbage code, but gets a list containing the date/time for each
   # first event of every day after today
-  times = list(map(lambda x: x.decoded('dtstart').timestamp(), get_events())) # get event times (epoch)
+  times = [event.get('dtstart').dt for event in events] # get datetimes of all event *start* times
+  times = [tz.localize(dt.replace(tzinfo=None)) for dt in times] # offset times by timezone from input calendar
+  times = [x.timestamp() for x in times] # convert to epoch timestamps
   times = [(x // DAY, x % DAY) for x in times] # split into days and seconds
   times = [x for x in times if x[1] == min([y[1] for y in times if y[0] == x[0]])] # only leave smallest seconds in day
   times = [x for x in times if now < (x[0] * DAY + x[1]) < (now + FUTURE_MAX)] # only leave after today and until FUTURE_MAX
-  times = [datetime.fromtimestamp(x[0] * DAY + x[1]) for x in times] # convert back to datetime
+  times = [datetime.fromtimestamp(x[0] * DAY + x[1], tz=tz) for x in times] # convert back to datetime
 
   for time in times:
     trip = get_trip(time)
