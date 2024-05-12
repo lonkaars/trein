@@ -36,7 +36,7 @@ def read_file(filename):
 
 def get_trip(date):
   # data = ""
-  # with open("./res.json", "r") as gert:
+  # with open("./autoplanner-api-response.json", "r") as gert:
   #   data = gert.read()
   #   gert.close()
   # return data
@@ -114,7 +114,6 @@ def main():
   # this is garbage code, but gets a list containing the date/time for each
   # first event of every day after today
   times = [event.get('dtstart').dt for event in events] # get datetimes of all event *start* times
-  times = [tz.localize(dt.replace(tzinfo=None)) for dt in times] # offset times by timezone from input calendar
   times = [x.timestamp() for x in times] # convert to epoch timestamps
   times = [(x // DAY, x % DAY) for x in times] # split into days and seconds
   times = [x for x in times if x[1] == min([y[1] for y in times if y[0] == x[0]])] # only leave smallest seconds in day
